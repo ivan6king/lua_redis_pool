@@ -42,14 +42,14 @@ function _M._connect(self)
 
     local ok, err = red:connect(host, port)
     if not ok then
-        ngx.log(ngx.ERR,"failed to connect host: " .. err)
+        ngx.log(ngx.ERR,"redis failed to connect host: " .. err)
         return nil,err
     end
 
     if password ~= nil then
         local ok, err = red:auth(password)
         if not ok then
-            ngx.log(ngx.ERR,"failed to auth: " .. err)
+            ngx.log(ngx.ERR,"redis failed to auth: " .. err)
             return nil, err
         end
     end
@@ -79,7 +79,7 @@ local function _do_command(self,cmd, ...)
     if pool_size ~= nil then
         local keepalive_res,keepalive_err = red:set_keepalive(max_idle_timeout, pool_size)
         if not keepalive_res then
-            ngx.log(ngx.ERR,"failed to set keepalive:" .. keepalive_err)
+            ngx.log(ngx.ERR,"redis failed to set keepalive:" .. keepalive_err)
         end
     end
     return res
@@ -108,7 +108,7 @@ function _M.commit_pipeline(self)
 
     local count = #reqs
     if nil == reqs or 0 == count then
-        return {}, "no pipeline by redisPool"
+        return {}, "no pipeline(redisPool)"
     end
 
     self._reqs = nil
@@ -131,15 +131,12 @@ function _M.commit_pipeline(self)
     if pool_size ~= nil then
         local keepalive_res,keepalive_err = red:set_keepalive(max_idle_timeout, pool_size)
         if not keepalive_res then
-            ngx.log(ngx.ERR,"failed to set keepalive:" .. keepalive_err)
+            ngx.log(ngx.ERR,"redis pipeline failed to set keepalive:" .. keepalive_err)
         end
     end
 
     return results
 end
-
-
-
 
 function _M.new(self, opts)
     opts = opts or {}
