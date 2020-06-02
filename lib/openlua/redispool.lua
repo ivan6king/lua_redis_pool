@@ -128,9 +128,12 @@ function _M.commit_pipeline(self)
     if not results or err then
         return {}, err
     end
+
+    local pool_size = rawget(self,"pool_size")
+    local max_idle_timeout = rawget(self,"max_idle_timeout") or 1000
     if pool_size ~= nil then
         local keepalive_res,keepalive_err = red:set_keepalive(max_idle_timeout, pool_size)
-        if not keepalive_res then
+        if not keepalive_res or keepalive_err then
             ngx.log(ngx.ERR,"redis pipeline failed to set keepalive:" .. keepalive_err)
         end
     end
